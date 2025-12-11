@@ -3,22 +3,22 @@ import { motion } from 'framer-motion'
 const features = [
   {
     id: 1,
-    title: 'Structure, Not Walls of Text',
-    description: 'Contracts become navigable. Clauses, definitions, schedules — organized in a sidebar you can actually use. Click "Service Hours" and see exactly what it means. No more Ctrl+F hunting.',
+    title: 'Structure, Not Static Text',
+    description: 'Contracts become navigable objects. Definitions, clauses, and payment terms are automatically identified and organized. Click "Governing Law" and instantly see the jurisdiction. No more endless scrolling.',
     image: 'poc-structure.png',
     imageAlt: 'Document structure sidebar with definitions',
   },
   {
     id: 2,
-    title: 'AI That Shows Its Work',
-    description: 'Every suggestion comes with reasoning. "Reduce P1 response time to 20 minutes" — here\'s why, here\'s the clause, here\'s the cost impact. Accept or reject with confidence.',
+    title: 'AI That Explains Itself',
+    description: 'Our AI doesn\'t just give you answers; it shows its reasoning. "This indemnity clause is unilateral" — here\'s the sentence that proves it, and here\'s what that means for you. Accept or reject with total confidence.',
     image: 'poc-ai-suggestion.png',
     imageAlt: 'AI suggestion with explanation',
   },
   {
     id: 3,
     title: 'Facts Extracted, Risks Surfaced',
-    description: 'Liability caps, payment terms, availability targets — pulled out automatically with confidence scores. See who owes what, by when, and what happens if they don\'t.',
+    description: 'Who owes what? By when? What\'s your liability cap? LexLoop pulls these critical facts out of the prose and puts them in a simple summary. See your obligations at a glance and spot red flags before they become disasters.',
     image: 'poc-constraints.png',
     imageAlt: 'Extracted constraints panel',
   },
@@ -26,7 +26,7 @@ const features = [
 
 export function Features() {
   return (
-    <section className="py-20 px-6">
+    <section className="py-20 px-6 bg-zinc-50">
       <div className="max-w-6xl mx-auto">
         {/* Section header */}
         <motion.div
@@ -34,21 +34,23 @@ export function Features() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-100px' }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="text-center mb-6"
         >
-          <h2 className="font-clash text-3xl sm:text-4xl font-semibold text-text-primary">
-            You're not a lawyer.
+          <h2 className="font-clash text-3xl sm:text-4xl lg:text-5xl font-semibold text-text-primary">
+            From a wall of text
             <br />
-            <span className="text-text-secondary">But here you are.</span>
+            to an
+            <span className="text-accent"> actionable process.</span>
           </h2>
-          <p className="mt-4 text-lg text-text-secondary max-w-2xl mx-auto">
-            Buried in MSAs, NDAs, and vendor agreements. Copying clauses into ChatGPT.
-            Hoping you didn't miss something important. There's a better way.
+          <p className="mt-6 text-lg text-text-secondary max-w-2xl mx-auto">
+            LexLoop ingests your contracts and transforms them into an interactive workspace.
+            <br />
+            No more walls of text. <span className="text-accent font-bold">Just clarity.</span>
           </p>
         </motion.div>
 
         {/* Bento grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {features.map((feature, index) => (
             <motion.div
               key={feature.id}

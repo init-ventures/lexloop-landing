@@ -31,6 +31,11 @@ export function Footer() {
           <h2 className="font-clash text-2xl sm:text-3xl font-semibold text-text-primary mb-4">
             Ready to stop dreading contract review?
           </h2>
+          <p className="text-text-secondary max-w-xl mx-auto mb-6">
+            Let LexLoop handle the contracts. You focus on building.
+            <br />
+            Get early access and start managing legal work the smart way.
+          </p>
 
           {submitted ? (
             <div className="inline-flex items-center gap-2 px-6 py-3 bg-accent-subtle rounded-xl">
