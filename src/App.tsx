@@ -7,6 +7,9 @@ import { Features } from './components/Features'
 import { FounderStory } from './components/FounderStory'
 import { Footer } from './components/Footer'
 import { DynamicShowcase } from './pages/DynamicShowcase'
+import { EmailValidationPending } from './pages/email_validations/Pending'
+import { EmailValidationConfirming } from './pages/email_validations/Confirming'
+import { MeetingsNew } from './pages/meetings/New'
 
 function LandingPage() {
   return (
@@ -30,6 +33,9 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/demo/structure" element={<DynamicShowcase />} />
+        <Route path="/email_validations/pending" element={<EmailValidationPending />} />
+        <Route path="/email_validations/confirming" element={<EmailValidationConfirming />} />
+        <Route path="/meetings/new" element={<MeetingsNew />} />
       </Routes>
     </BrowserRouter>
   )
