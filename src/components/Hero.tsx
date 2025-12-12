@@ -72,8 +72,6 @@ export function Hero() {
   const [submitted, setSubmitted] = useState(false)
   const [docIndex, setDocIndex] = useState(0)
   const [lightboxOpen, setLightboxOpen] = useState(false)
-  const [zoomLevel, setZoomLevel] = useState(1)
-  const [zoomOrigin, setZoomOrigin] = useState({ x: 50, y: 50 })
   const [activeHotspot, setActiveHotspot] = useState<string | null>(null)
 
   const openWithHotspot = (hotspotId: string) => {
@@ -81,30 +79,8 @@ export function Hero() {
     setLightboxOpen(true)
   }
 
-  const openFullView = () => {
-    setZoomOrigin({ x: 50, y: 50 })
-    setZoomLevel(1)
-    setActiveHotspot(null)
-    setLightboxOpen(true)
-  }
-
-  const handleImageClick = (e: React.MouseEvent<HTMLImageElement>) => {
-    e.stopPropagation()
-    if (zoomLevel >= 2.5) {
-      closeLightbox()
-    } else {
-      const rect = e.currentTarget.getBoundingClientRect()
-      const x = ((e.clientX - rect.left) / rect.width) * 100
-      const y = ((e.clientY - rect.top) / rect.height) * 100
-      setZoomOrigin({ x, y })
-      setZoomLevel(prev => Math.min(prev + 1, 3))
-    }
-  }
-
   const closeLightbox = () => {
     setLightboxOpen(false)
-    setZoomLevel(1)
-    setZoomOrigin({ x: 50, y: 50 })
     setActiveHotspot(null)
   }
 
