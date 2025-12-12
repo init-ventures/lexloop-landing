@@ -1,19 +1,44 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export function Navbar() {
+  const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
+
+  const isEmailValid = email.length > 0 && EMAIL_REGEX.test(email)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!email) return
+    if (!isEmailValid) return
 
     setIsSubmitting(true)
-    // Placeholder - will wire up actual endpoint later
-    await new Promise(resolve => setTimeout(resolve, 500))
-    setSubmitted(true)
-    setIsSubmitting(false)
+
+    // Dev mode: skip API call
+    if (import.meta.env.DEV && import.meta.env.VITE_MOCK_API === 'true') {
+      await new Promise(r => setTimeout(r, 300))
+      navigate(`/email_validations/pending?email=${encodeURIComponent(email)}`)
+      return
+    }
+
+    try {
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Registration failed')
+      }
+
+      navigate(`/email_validations/pending?email=${encodeURIComponent(email)}`)
+    } catch (err) {
+      console.error('Registration error:', err)
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -26,29 +51,22 @@ export function Navbar() {
 
         {/* CTA */}
         <div className="hidden sm:block">
-          {submitted ? (
-            <span className="text-sm text-accent font-medium">
-              You're on the list
-            </span>
-          ) : (
-            <form onSubmit={handleSubmit} className="flex items-center gap-2">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@startup.com"
-                className="w-48 px-3 py-2 text-sm bg-bg-card border border-border rounded-lg focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors"
-                required
-              />
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="px-4 py-2 text-sm font-medium bg-accent text-white rounded-lg hover:bg-accent-hover transition-colors disabled:opacity-50"
-              >
-                {isSubmitting ? '...' : 'Join Waitlist'}
-              </button>
-            </form>
-          )}
+          <form onSubmit={handleSubmit} className="flex items-center gap-2">
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@startup.com"
+              className="w-48 px-3 py-2 text-sm bg-bg-card border border-border rounded-lg focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-colors"
+            />
+            <button
+              type="submit"
+              disabled={isSubmitting || !isEmailValid}
+              className="px-4 py-2 text-sm font-medium bg-accent text-white rounded-lg hover:bg-accent-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSubmitting ? '...' : 'Join Waitlist'}
+            </button>
+          </form>
         </div>
 
         {/* Mobile CTA */}

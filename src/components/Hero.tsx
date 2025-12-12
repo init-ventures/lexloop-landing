@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import pocScreenshot from '../assets/poc-screenshots/poc-main.jpeg'
+
+// Email validation regex
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 const documents = [
   { pages: 47, name: 'MSA' },
@@ -67,12 +71,39 @@ const hotspots = [
 ]
 
 export function Hero() {
+  const navigate = useNavigate()
   const [email, setEmail] = useState('')
+  const [emailError, setEmailError] = useState<string | null>(null)
+  const [emailTouched, setEmailTouched] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
   const [docIndex, setDocIndex] = useState(0)
+  // Note: removed 'submitted' state - we now redirect on success
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [activeHotspot, setActiveHotspot] = useState<string | null>(null)
+
+  // Validate email on change
+  const validateEmail = (value: string): string | null => {
+    if (!value) return 'Email is required'
+    if (!EMAIL_REGEX.test(value)) return 'Please enter a valid email'
+    return null
+  }
+
+  const isEmailValid = email.length > 0 && !validateEmail(email)
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setEmail(value)
+    setSubmitError(null)
+    if (emailTouched) {
+      setEmailError(validateEmail(value))
+    }
+  }
+
+  const handleEmailBlur = () => {
+    setEmailTouched(true)
+    setEmailError(validateEmail(email))
+  }
 
   const openWithHotspot = (hotspotId: string) => {
     setActiveHotspot(hotspotId)
@@ -105,13 +136,42 @@ export function Hero() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!email) return
+
+    const error = validateEmail(email)
+    if (error) {
+      setEmailError(error)
+      setEmailTouched(true)
+      return
+    }
 
     setIsSubmitting(true)
-    // Placeholder - will wire up actual endpoint later
-    await new Promise(resolve => setTimeout(resolve, 500))
-    setSubmitted(true)
-    setIsSubmitting(false)
+    setSubmitError(null)
+
+    // Dev mode: skip API call, go straight to next page
+    if (import.meta.env.DEV && import.meta.env.VITE_MOCK_API === 'true') {
+      await new Promise(r => setTimeout(r, 500)) // Simulate network delay
+      navigate(`/email_validations/pending?email=${encodeURIComponent(email)}`)
+      return
+    }
+
+    try {
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Registration failed')
+      }
+
+      // Redirect to confirmation pending page
+      navigate(`/email_validations/pending?email=${encodeURIComponent(email)}`)
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : 'Something went wrong')
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -169,32 +229,37 @@ export function Hero() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="mt-12"
         >
-          {submitted ? (
-            <div className="inline-flex items-center gap-2 px-6 py-3 bg-accent-subtle rounded-xl">
-              <svg className="w-5 h-5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              <span className="text-accent font-medium">You're on the list. We'll be in touch.</span>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-center justify-center gap-3 max-w-md mx-auto">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@startup.com"
-                className="w-full sm:w-64 px-4 py-3 text-base bg-bg-card border border-border rounded-xl focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all"
-                required
-              />
+          <form onSubmit={handleSubmit} className="max-w-md mx-auto">
+            <div className="flex flex-col sm:flex-row items-start justify-center gap-3">
+              <div className="w-full sm:w-64">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={handleEmailChange}
+                  onBlur={handleEmailBlur}
+                  placeholder="you@startup.com"
+                  className={`w-full px-4 py-3 text-base bg-bg-card border rounded-xl focus:ring-2 outline-none transition-all ${
+                    emailError && emailTouched
+                      ? 'border-red-400 focus:border-red-400 focus:ring-red-200'
+                      : 'border-border focus:border-accent focus:ring-accent/20'
+                  }`}
+                />
+                {emailError && emailTouched && (
+                  <p className="mt-1 text-sm text-red-500 text-left">{emailError}</p>
+                )}
+              </div>
               <button
                 type="submit"
-                disabled={isSubmitting}
-                className="w-full sm:w-auto px-6 py-3 text-base font-medium bg-accent text-white rounded-xl hover:bg-accent-hover transition-colors disabled:opacity-50 whitespace-nowrap"
+                disabled={isSubmitting || !isEmailValid}
+                className="w-full sm:w-auto px-6 py-3 text-base font-medium bg-accent text-white rounded-xl hover:bg-accent-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
               >
                 {isSubmitting ? 'Joining...' : 'Join the Waitlist'}
               </button>
-            </form>
-          )}
+            </div>
+            {submitError && (
+              <p className="mt-3 text-sm text-red-500">{submitError}</p>
+            )}
+          </form>
           <p className="mt-4 text-sm text-text-secondary">
             Early access in early 2026. No spam. No BS.
           </p>
