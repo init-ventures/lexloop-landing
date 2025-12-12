@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import nicolasImg from '../assets/nicolas.jpg'
 
 export function FounderStory() {
   return (
@@ -47,10 +48,17 @@ export function FounderStory() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="mt-8 pl-8"
+            className="mt-8 pl-8 flex items-center gap-4"
           >
-            <p className="font-satoshi font-bold text-text-primary">— Nicolas Filzi</p>
-            <p className="text-sm text-text-secondary">Founder of LexLoop</p>
+            <img
+              src={nicolasImg}
+              alt="Nicolas, founder of LexLoop"
+              className="w-12 h-12 rounded-full object-cover"
+            />
+            <div>
+              <p className="font-satoshi font-bold text-text-primary">Nicolas</p>
+              <p className="text-sm text-text-secondary">Founder of LexLoop</p>
+            </div>
           </motion.div>
         </motion.div>
       </div>
