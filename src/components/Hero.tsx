@@ -28,10 +28,42 @@ function getPageColor(pages: number): string {
 
 // Hotspots for the POC screenshot - positions as percentages
 // These define where the hotspot dot appears AND where to zoom
+// Labels match the Features section titles for consistency
 const hotspots = [
-  { id: 'structure', label: 'Document Structure', x: 12, y: 50, zoomX: 0, description: 'Navigate definitions, clauses, and sections' },
-  { id: 'content', label: 'Smart Highlights', x: 48, y: 50, zoomX: 35, description: 'Key terms and definitions highlighted inline' },
-  { id: 'intelligence', label: 'AI in the loop', x: 88, y: 50, zoomX: 100, description: 'AI-powered analysis and suggestions' },
+  {
+    id: 'structure',
+    label: 'Structure, not static text',
+    x: 8,
+    y: 35,
+    // Object-position: 0% = left edge, 100% = right edge
+    focusX: 0,
+    focusY: 50,
+    width: '350px',
+    height: '80vh',
+    animationDelay: 0,
+  },
+  {
+    id: 'content',
+    label: 'Facts extracted, risks surfaced',
+    x: 52,
+    y: 55,
+    focusX: 45,
+    focusY: 30,
+    width: '750px',
+    height: '80vh',
+    animationDelay: 1.5,
+  },
+  {
+    id: 'intelligence',
+    label: 'LexAI joins the conversation',
+    x: 88,
+    y: 70,
+    focusX: 100,
+    focusY: 50,
+    width: '450px',
+    height: '80vh',
+    animationDelay: 3,
+  },
 ]
 
 export function Hero() {
@@ -45,13 +77,8 @@ export function Hero() {
   const [activeHotspot, setActiveHotspot] = useState<string | null>(null)
 
   const openWithHotspot = (hotspotId: string) => {
-    const hotspot = hotspots.find(h => h.id === hotspotId)
-    if (hotspot) {
-      setZoomOrigin({ x: hotspot.zoomX, y: 50 })
-      setZoomLevel(2.5)
-      setActiveHotspot(hotspotId)
-      setLightboxOpen(true)
-    }
+    setActiveHotspot(hotspotId)
+    setLightboxOpen(true)
   }
 
   const openFullView = () => {
@@ -89,6 +116,17 @@ export function Hero() {
     return () => clearInterval(interval)
   }, [])
 
+  // Close lightbox on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && lightboxOpen) {
+        closeLightbox()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [lightboxOpen])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email) return
@@ -111,14 +149,14 @@ export function Hero() {
           className="font-clash text-4xl sm:text-5xl lg:text-6xl font-semibold text-text-primary leading-tight"
         >
           <span className="block">That sinking feeling when a</span>
-          <span className="block">
+          <span className="block overflow-hidden py-1">
             <AnimatePresence mode="wait">
               <motion.span
                 key={`${documents[docIndex].pages}-${documents[docIndex].name}`}
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.3 }}
+                exit={{ opacity: 0, y: -30 }}
+                transition={{ duration: 0.3, ease: 'easeOut' }}
                 className="inline-block"
               >
                 <span style={{ color: getPageColor(documents[docIndex].pages) }}>
@@ -182,18 +220,18 @@ export function Hero() {
             </form>
           )}
           <p className="mt-4 text-sm text-text-secondary">
-            Early access launching early 2026. No spam. No BS.
+            Early access in early 2026. No spam. No BS.
           </p>
         </motion.div>
 
       </div>
 
-      {/* POC Screenshot - Full width, overlaps next section */}
+      {/* POC Screenshot - Hidden on mobile, overlaps next section on desktop */}
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.4 }}
-        className="mt-20 relative px-4 sm:px-6 lg:px-8 -mb-32 sm:-mb-48 lg:-mb-64 z-10"
+        className="hidden sm:block mt-20 relative px-4 sm:px-6 lg:px-8 sm:-mb-48 lg:-mb-64 z-10"
       >
         {/* Ambient glow */}
         <div className="absolute inset-0 bg-linear-to-b from-accent/20 to-transparent blur-3xl -z-10 scale-110" />
@@ -217,8 +255,21 @@ export function Hero() {
                   style={{ left: `${hotspot.x}%`, top: `${hotspot.y}%`, transform: 'translate(-50%, -50%)' }}
                   aria-label={`View ${hotspot.label}`}
                 >
-                  {/* Pulse ring */}
-                  <span className="absolute inset-0 w-8 h-8 -m-4 rounded-full bg-accent/30 animate-ping" />
+                  {/* Pulse ring - staggered animation with slower timing */}
+                  <span
+                    className="absolute inset-0 w-10 h-10 -m-5 rounded-full bg-accent/25"
+                    style={{
+                      animation: `ping 3s cubic-bezier(0, 0, 0.2, 1) infinite`,
+                      animationDelay: `${hotspot.animationDelay}s`,
+                    }}
+                  />
+                  <span
+                    className="absolute inset-0 w-10 h-10 -m-5 rounded-full bg-accent/15"
+                    style={{
+                      animation: `ping 3s cubic-bezier(0, 0, 0.2, 1) infinite`,
+                      animationDelay: `${hotspot.animationDelay + 0.5}s`,
+                    }}
+                  />
                   {/* Hotspot dot */}
                   <span className="relative flex items-center justify-center w-8 h-8 rounded-full bg-accent text-white shadow-lg cursor-pointer hover:scale-110 transition-transform">
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -226,7 +277,7 @@ export function Hero() {
                     </svg>
                   </span>
                   {/* Tooltip */}
-                  <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-1.5 bg-zinc-900 text-white text-sm rounded-lg whitespace-nowrap opacity-0 group-hover/hotspot:opacity-100 transition-opacity pointer-events-none">
+                  <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-1.5 bg-zinc-900 text-white text-sm rounded-lg whitespace-nowrap opacity-0 group-hover/hotspot:opacity-100 transition-opacity pointer-events-none shadow-xl">
                     {hotspot.label}
                     <span className="absolute left-1/2 -translate-x-1/2 top-full border-4 border-transparent border-t-zinc-900" />
                   </span>
@@ -234,92 +285,85 @@ export function Hero() {
               ))}
             </div>
 
-            {/* View details button - always visible on mobile */}
-            <button
-              onClick={openFullView}
-              className="absolute bottom-4 left-1/2 -translate-x-1/2 sm:opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg shadow-lg flex items-center gap-2 text-text-primary font-medium text-sm sm:text-base cursor-pointer"
-              aria-label="View in details"
-            >
-              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-              </svg>
-              View in details
-            </button>
           </div>
         </div>
       </motion.div>
 
       {/* Lightbox modal */}
       <AnimatePresence>
-        {lightboxOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4"
-            onClick={closeLightbox}
-          >
-            {/* Image container */}
+        {lightboxOpen && (() => {
+          const hotspot = activeHotspot ? hotspots.find(h => h.id === activeHotspot) : null
+
+          return (
             <motion.div
-              className="relative cursor-pointer rounded-lg overflow-hidden shadow-2xl"
-              style={{
-                width: zoomLevel > 1 ? `${90 * zoomLevel}vw` : '90vw',
-                height: zoomLevel > 1 ? `${90 * zoomLevel}vh` : '90vh',
-                maxWidth: zoomLevel > 1 ? 'none' : '90vw',
-                maxHeight: zoomLevel > 1 ? 'none' : '90vh',
-              }}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.3 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4"
               onClick={closeLightbox}
             >
-              <img
-                src={pocScreenshot}
-                alt="LexLoop interface - full size"
-                className="w-full h-full"
-                style={{
-                  objectFit: zoomLevel > 1 ? 'cover' : 'contain',
-                  objectPosition: zoomLevel > 1 ? `${zoomOrigin.x}% ${zoomOrigin.y}%` : 'center',
-                }}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  handleImageClick(e)
-                }}
-              />
+              <motion.div
+                className="relative cursor-pointer rounded-xl overflow-hidden shadow-2xl border border-white/10 bg-white"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.3 }}
+                onClick={closeLightbox}
+              >
+                {hotspot ? (
+                  // Cropped view - custom dimensions per hotspot
+                  <img
+                    src={pocScreenshot}
+                    alt="LexLoop interface"
+                    style={{
+                      width: hotspot.width,
+                      height: hotspot.height,
+                      maxHeight: '85vh',
+                      objectFit: 'cover',
+                      objectPosition: `${hotspot.focusX}% ${hotspot.focusY}%`,
+                    }}
+                  />
+                ) : (
+                  // Full view
+                  <img
+                    src={pocScreenshot}
+                    alt="LexLoop interface - full size"
+                    className="max-w-[90vw] max-h-[85vh] object-contain"
+                  />
+                )}
+              </motion.div>
+
+              {/* Zoom indicator */}
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full text-white text-sm flex items-center gap-2">
+                {activeHotspot ? (
+                  <>
+                    <span className="w-2 h-2 rounded-full bg-accent" />
+                    {hotspots.find(h => h.id === activeHotspot)?.label} — tap anywhere to close
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                    </svg>
+                    Tap anywhere to close
+                  </>
+                )}
+              </div>
+
+              {/* Close button */}
+              <button
+                onClick={closeLightbox}
+                className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
+                aria-label="Close"
+              >
+                <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </motion.div>
-
-            {/* Zoom indicator */}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full text-white text-sm flex items-center gap-2">
-              {activeHotspot ? (
-                <>
-                  <span className="w-2 h-2 rounded-full bg-accent" />
-                  {hotspots.find(h => h.id === activeHotspot)?.label} — tap anywhere to close
-                </>
-              ) : (
-                <>
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
-                  </svg>
-                  {zoomLevel === 1 ? 'Tap image to zoom' : 'Tap anywhere to close'}
-                </>
-              )}
-            </div>
-
-            {/* Close button */}
-            <button
-              onClick={closeLightbox}
-              className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
-              aria-label="Close"
-            >
-              <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </motion.div>
-        )}
+          )
+        })()}
       </AnimatePresence>
     </section>
   )
