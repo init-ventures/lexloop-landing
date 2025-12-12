@@ -424,7 +424,7 @@ type ViewState =
 // Demo variant types
 type DemoVariant = 'structure' | 'insights' | 'facts' | 'loops' | 'clause'
 
-type DemoStructureProps = {
+type DynamicShowcaseProps = {
   variant?: DemoVariant
   embedded?: boolean
   allowNavigation?: boolean // Whether to show back button and allow view transitions
@@ -433,13 +433,13 @@ type DemoStructureProps = {
 }
 
 // Main component
-export function DemoStructure({
+export function DynamicShowcase({
   variant = 'structure',
   embedded = false,
   allowNavigation = true,
   initialClauseId = 'clause-2-2',
   hiddenTabs = [],
-}: DemoStructureProps = {}) {
+}: DynamicShowcaseProps = {}) {
   // Determine initial state based on variant
   const getInitialViewState = (): ViewState => {
     switch (variant) {
@@ -574,13 +574,13 @@ export function DemoStructure({
     setStructureTab('definitions')
     setHighlightedId(definitionId)
     setPopover(null)
-    // Scroll to definition after state update
+    // Wait for view transition + tab switch animation
     setTimeout(() => {
       const element = document.getElementById(`definition-${definitionId}`)
       if (element) {
         element.scrollIntoView({ behavior: 'smooth', block: 'center' })
       }
-    }, 100)
+    }, 350)
   }
 
   const handleViewFact = (factId: string) => {

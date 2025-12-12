@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { DemoStructure } from '../pages/DemoStructure'
+import { DynamicShowcase } from '../pages/DynamicShowcase'
 
 // Curly arrow SVG with loop pointing down
 function CurvedArrow({ className }: { className?: string }) {
@@ -121,7 +121,7 @@ export function Features() {
                       <CurvedArrow className="w-14 h-10 text-accent -mb-1" />
                     </motion.div>
                   )}
-                  <DemoStructure {...feature.demoProps} embedded />
+                  <DynamicShowcase {...feature.demoProps} embedded />
                 </div>
               </motion.div>
             )

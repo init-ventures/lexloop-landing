@@ -6,7 +6,7 @@ import { Manifesto } from './components/Manifesto'
 import { Features } from './components/Features'
 import { FounderStory } from './components/FounderStory'
 import { Footer } from './components/Footer'
-import { DemoStructure } from './pages/DemoStructure'
+import { DynamicShowcase } from './pages/DynamicShowcase'
 
 function LandingPage() {
   return (
@@ -29,7 +29,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/demo/structure" element={<DemoStructure />} />
+        <Route path="/demo/structure" element={<DynamicShowcase />} />
       </Routes>
     </BrowserRouter>
   )
