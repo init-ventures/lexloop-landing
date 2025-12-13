@@ -24,10 +24,10 @@ export function Navbar() {
     }
 
     try {
-      const response = await fetch('/api/register', {
+      const response = await fetch('/api/waitlist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ action: 'waitlist_registrations.new', email }),
       })
 
       if (!response.ok) {

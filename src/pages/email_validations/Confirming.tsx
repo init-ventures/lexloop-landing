@@ -31,10 +31,10 @@ export function EmailValidationConfirming() {
 
     const confirmEmail = async () => {
       try {
-        const response = await fetch('/api/confirm', {
+        const response = await fetch('/api/waitlist', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token }),
+          body: JSON.stringify({ action: 'email_validations.confirm', token }),
         })
 
         if (!response.ok) {

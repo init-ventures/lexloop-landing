@@ -24,7 +24,7 @@ export function EmailValidationPending() {
     const checkStatus = async () => {
       setIsChecking(true)
       try {
-        const response = await fetch(`/api/status?email=${encodeURIComponent(email)}`)
+        const response = await fetch(`/api/waitlist?action=email_validations.status&email=${encodeURIComponent(email)}`)
         if (!response.ok) throw new Error('Failed to check status')
 
         const data = await response.json()
