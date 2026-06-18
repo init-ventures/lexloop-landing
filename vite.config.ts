@@ -8,12 +8,12 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     watch: {
-      // Exclude api folder - it's for Vercel serverless, not Vite
-      ignored: [path.resolve(__dirname, 'api/**')],
+      // Exclude functions folder - it's for Cloudflare Pages Functions, not Vite
+      ignored: [path.resolve(__dirname, 'functions/**')],
     },
   },
   optimizeDeps: {
-    // Don't process api folder
-    exclude: ['api'],
+    // Don't process functions folder
+    exclude: ['functions'],
   },
 })
