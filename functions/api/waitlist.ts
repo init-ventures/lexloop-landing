@@ -73,10 +73,14 @@ async function slackPost(env: Env, text: string, threadTs?: string | null): Prom
       }),
     })
     const data = (await res.json()) as { ok: boolean; ts?: string; error?: string }
-    if (!data.ok) console.error('Slack error:', data.error)
+    if (!data.ok) {
+      console.error('Slack error:', data.error)
+      await logEvent(env, null, null, 'slack.error', data.error || 'unknown')
+    }
     return data.ts ?? null
   } catch (e) {
     console.error('slackPost failed:', e)
+    await logEvent(env, null, null, 'slack.error', String(e))
     return null
   }
 }
@@ -92,9 +96,14 @@ async function loops(env: Env, method: 'POST' | 'PUT', path: string, body: unkno
       },
       body: JSON.stringify(body),
     })
-    if (!res.ok) console.error(`Loops ${path} returned ${res.status}:`, await res.text())
+    if (!res.ok) {
+      const detail = await res.text()
+      console.error(`Loops ${path} returned ${res.status}:`, detail)
+      await logEvent(env, null, null, 'loops.error', `${path} ${res.status}: ${detail}`.slice(0, 500))
+    }
   } catch (e) {
     console.error(`Loops ${path} failed:`, e)
+    await logEvent(env, null, null, 'loops.error', `${path}: ${String(e)}`.slice(0, 500))
   }
 }
 
